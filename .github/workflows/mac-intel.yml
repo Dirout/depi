@@ -1,0 +1,39 @@
+on: [push]
+
+name: 'Build: macOS (x86_64)'
+
+jobs:
+  mac_x86-64:
+    name: macOS (x86_64)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: x86_64-apple-darwin
+          default: true
+          profile: minimal
+      - name: Build depi
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --all-features --target x86_64-apple-darwin
+      - name: Prepare depi for upload
+        run: |
+          cd ./target/x86_64-apple-darwin/release/
+          strip ./depi
+          chmod +x ./depi
+          tar -cvf x86_64-depi.osx.tar \
+          depi \
+          libdepi.dylib \
+          libdepi.a
+      - name: Upload depi build artifacts to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: x86_64-depi.osx
+          path: ./target/x86_64-apple-darwin/release/x86_64-depi.osx.tar
+          if-no-files-found: error
