@@ -162,7 +162,7 @@ async fn print_image(matches: &clap::ArgMatches) {
 		truecolor,
 		use_kitty: !block,
 		use_iterm: !block,
-    use_sixel: !block,
+		use_sixel: !block,
 	};
 
 	if verbose {
@@ -192,18 +192,18 @@ async fn print_image(matches: &clap::ArgMatches) {
 				"http" | "https" => {
 					let http_bytes = lib::download_http_file(image_url.to_string()).await;
 					let image = image::load_from_memory(&http_bytes).unwrap();
-          viuer::print(&image, &print_config).expect("Image printing failed.");
+					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				"ipfs" => {
 					let ipfs_bytes =
 						lib::handle_ipfs_request_using_api(image_url.to_string()).await;
 					let image = image::load_from_memory(&ipfs_bytes).unwrap();
-          viuer::print(&image, &print_config).expect("Image printing failed.");
+					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				"tor" => {
 					let tor_bytes = lib::download_tor_file(image_url.to_string()).await;
 					let image = image::load_from_memory(&tor_bytes).unwrap();
-          viuer::print(&image, &print_config).expect("Image printing failed.");
+					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				_ => {
 					writeln!(buf_out, "Unsupported scheme `{}`", image_url.scheme()).unwrap();

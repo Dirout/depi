@@ -86,5 +86,8 @@ pub async fn download_tor_file(url: String) -> Vec<u8> {
 	let tor_connector = arti_hyper::ArtiHttpConnector::new(tor_client, tls_connector);
 	let http = hyper::Client::builder().build::<_, hyper::Body>(tor_connector);
 	let mut resp = http.get(url.try_into().unwrap()).await.unwrap();
-	return hyper::body::to_bytes(resp.body_mut()).await.unwrap().to_vec();
+	return hyper::body::to_bytes(resp.body_mut())
+		.await
+		.unwrap()
+		.to_vec();
 }
