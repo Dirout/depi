@@ -14,6 +14,7 @@
 
 use futures::{StreamExt, TryStreamExt};
 use ipfs_api_backend_hyper::{IpfsApi, IpfsClient};
+use tls_api::{TlsConnector, TlsConnectorBuilder};
 
 /// Comply with a request using the IPFS scheme with a daemon
 ///
@@ -83,7 +84,7 @@ pub async fn download_tor_file(url: String) -> Vec<u8> {
 		.build()
 		.unwrap();
 	let tor_connector = arti_hyper::ArtiHttpConnector::new(tor_client, tls_connector);
-	let http = hyper::Client::builder().build::<_, Body>(tor_connector);
+	let http = hyper::Client::builder().build::<_, hyper::Body>(tor_connector);
 	let mut resp = http.get(url.try_into().unwrap()).await.unwrap();
-	return hyper::body::to_bytes(resp.body_mut()).await.unwrap();
+	return hyper::body::to_bytes(resp.body_mut()).await.unwrap().to_vec();
 }
