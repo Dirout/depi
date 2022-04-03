@@ -36,13 +36,13 @@ lazy_static! {
 	.arg(arg!(<IMAGE> "URL or path pointing to an image file").required(true).takes_value(true).multiple_values(false))
 	.arg(arg!(-v --verbose "Show relevant information on output"))
 	.arg(arg!(-t --transparent "Show transparency rather than a checkerboard background (if using block output)"))
-  .arg(arg!(-r --truecolor "Use full range of colours, if supported by the terminal (defaults to true)"))
+  .arg(arg!(-r --truecolor "Use full range of colours, if supported by the terminal"))
 	.arg(arg!(-b --block "Force block output"))
-  .arg(arg!(-w --width "Render image with a specific width dimension").required(true).takes_value(true))
-	.arg(arg!(-h --height "Render image with a specific height dimension").required(true).takes_value(true))
-	.arg(arg!(-x --x_offset "Horizontally offset the rendered image by the given value").required(true).takes_value(true))
-	.arg(arg!(-y --y_offset "Vertically offset the rendered image by the given value").required(true).takes_value(true))
-  .arg(arg!(-o --absolute_offset "Use absolute coordinates for the offset instead of relative coordinates (defaults to true)"))
+  .arg(arg!(-w --width "Render image with a specific width dimension").takes_value(true))
+	.arg(arg!(-h --height "Render image with a specific height dimension").takes_value(true))
+	.arg(arg!(-x --x_offset "Horizontally offset the rendered image by the given value").takes_value(true))
+	.arg(arg!(-y --y_offset "Vertically offset the rendered image by the given value").takes_value(true))
+  .arg(arg!(-o --absolute_offset "Use absolute coordinates for the offset instead of relative coordinates"))
   .arg(arg!(-c --restore_cursor "Restore the cursor's position after printing the image"))
 	.subcommand(Command::new("show").about("Shows information regarding the usage and handling of this software")
 	.arg(arg!(-w --warranty "Prints warranty information"))
@@ -96,9 +96,9 @@ async fn print_image(matches: &clap::ArgMatches) {
 		.to_string();
 	let verbose = matches.is_present("verbose");
 	let transparent = matches.is_present("transparent");
-	let truecolor = !matches.is_present("true_color");
+	let truecolor = matches.is_present("truecolor");
 	let block = matches.is_present("block");
-	let absolute_offset = !matches.is_present("absolute_offset");
+	let absolute_offset = matches.is_present("absolute_offset");
 	let restore_cursor = matches.is_present("restore_cursor");
 	let has_width = matches.is_present("width");
 	let has_height = matches.is_present("height");
@@ -151,29 +151,80 @@ async fn print_image(matches: &clap::ArgMatches) {
 		None
 	};
 
-	let print_config = viuer::Config {
-		transparent,
-		absolute_offset,
-		x: x_offset,
-		y: y_offset,
-		restore_cursor,
-		width,
-		height,
-		truecolor,
-		use_kitty: !block,
-		use_iterm: !block,
-		use_sixel: !block,
-	};
+  cfg_if::cfg_if! {
+    if #[cfg(feature = "sixel")] {
+      let print_config = viuer::Config {
+        transparent,
+        absolute_offset,
+        x: x_offset,
+        y: y_offset,
+        restore_cursor,
+        width,
+        height,
+        truecolor,
+        use_kitty: !block,
+        use_iterm: !block,
+        use_sixel: !block,
+      };
+    } else {
+      let print_config = viuer::Config {
+        transparent,
+        absolute_offset,
+        x: x_offset,
+        y: y_offset,
+        restore_cursor,
+        width,
+        height,
+        truecolor,
+        use_kitty: !block,
+        use_iterm: !block,
+      };
+    }
+  }	
 
 	if verbose {
-		writeln!(
-			buf_out,
-			"iTerm graphics protocol support: {}\nKitty graphics protocol support: {}\nSixel graphics protocol support: {}",
-			viuer::is_iterm_supported(),
-			viuer::get_kitty_support() != viuer::KittySupport::None,
-      viuer::is_sixel_supported()
-		)
-		.unwrap();
+		cfg_if::cfg_if! {
+      if #[cfg(feature = "sixel")] {
+        writeln!(
+          buf_out,
+          "iTerm graphics protocol support: {}\nkitty graphics protocol support: {}\nSixel graphics protocol support: {}\nRequested transparency: {}\nRequested absolute offset: {}\nRequested X-offset: {}\nRequested Y-offset: {}\nRestore cursor: {}\nRequested width: {:#?}\nRequested height: {:#?}\nRequested true color: {}\nRequested kitty protocol: {}\nRequested iTerm protocol: {}\nRequested Sixel protocol: {}",
+          viuer::is_iterm_supported(),
+          viuer::get_kitty_support() != viuer::KittySupport::None,
+          viuer::is_sixel_supported(),
+          print_config.transparent,
+          print_config.absolute_offset,
+          print_config.x,
+          print_config.y,
+          print_config.restore_cursor,
+          print_config.width,
+          print_config.height,
+          print_config.truecolor,
+          print_config.use_kitty,
+          print_config.use_iterm,
+          print_config.use_sixel
+        )
+        .unwrap();
+      } else {
+        writeln!(
+          buf_out,
+          "iTerm graphics protocol support: {}\nkitty graphics protocol support: {}\nRequested transparency: {}\nRequested absolute offset: {}\nRequested X-offset: {}\nRequested Y-offset: {}\nRestore cursor: {}\nRequested width: {:#?}\nRequested height: {:#?}\nRequested true color: {}\nRequested kitty protocol: {}\nRequested iTerm protocol: {}\n",
+          viuer::is_iterm_supported(),
+          viuer::get_kitty_support() != viuer::KittySupport::None,
+          print_config.transparent,
+          print_config.absolute_offset,
+          print_config.x,
+          print_config.y,
+          print_config.restore_cursor,
+          print_config.width,
+          print_config.height,
+          print_config.truecolor,
+          print_config.use_kitty,
+          print_config.use_iterm
+        )
+        .unwrap();
+      }
+    }
+    
 	}
 
 	let image_url_result = url::Url::parse(&image_input);
@@ -185,22 +236,35 @@ async fn print_image(matches: &clap::ArgMatches) {
 			match image_url.scheme() {
 				"file" => {
 					let image_path = image_url.to_file_path().unwrap();
-					viuer::print_from_file(image_path, &print_config).unwrap_or_else(|_| panic!("Failed to render from file at path `{}`.", image_input));
+          let image = image::io::Reader::open(&image_path).unwrap().with_guessed_format().unwrap().decode().unwrap();
+          if verbose {
+            writeln!(buf_out, "Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels", image_input, image.width(), image.height()).unwrap();
+          }
+					viuer::print(&image, &print_config).unwrap_or_else(|_| panic!("Failed to render from file at path `{}`.", image_input));
 				}
 				"http" | "https" => {
 					let http_bytes = lib::download_http_file(image_url.to_string()).await;
 					let image = image::load_from_memory(&http_bytes).unwrap();
+          if verbose {
+            writeln!(buf_out, "Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels", image_input, image.width(), image.height()).unwrap();
+          }
 					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				"ipfs" => {
 					let ipfs_bytes =
 						lib::handle_ipfs_request_using_api(image_url.to_string()).await;
 					let image = image::load_from_memory(&ipfs_bytes).unwrap();
+          if verbose {
+            writeln!(buf_out, "Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels", image_input, image.width(), image.height()).unwrap();
+          }
 					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				"tor" => {
 					let tor_bytes = lib::download_tor_file(image_url.to_string()).await;
 					let image = image::load_from_memory(&tor_bytes).unwrap();
+          if verbose {
+            writeln!(buf_out, "Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels", image_input, image.width(), image.height()).unwrap();
+          }
 					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				_ => {
@@ -209,10 +273,11 @@ async fn print_image(matches: &clap::ArgMatches) {
 			}
 		}
 		Err(_) => {
-			if verbose {
-				writeln!(buf_out, "Image path: `{}`", image_input).unwrap();
+      let image = image::io::Reader::open(&image_input).unwrap().with_guessed_format().unwrap().decode().unwrap();
+      if verbose {
+				writeln!(buf_out, "Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels", image_input, image.width(), image.height()).unwrap();
 			}
-			viuer::print_from_file(&image_input, &print_config)
+			viuer::print(&image, &print_config)
 				.unwrap_or_else(|_| panic!("Failed to render from file at path `{}`.", image_input));
 		}
 	}

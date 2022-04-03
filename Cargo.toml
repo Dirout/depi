@@ -15,7 +15,7 @@
 cargo-features = ["strip"]
 [package]
 name = "depi"
-version = "0.3.1"
+version = "0.1.0"
 authors = ["Emil Sayahi <limesayahi@gmail.com>"]
 edition = "2021"
 resolver = "2"
@@ -42,6 +42,7 @@ anyhow = "1.0.56"
 argfile = "0.1.4"
 arti-client = { version = "0.2.0", features = ["static"] }
 arti-hyper = "0.2.0"
+cfg-if = "1.0.0"
 clap = { version = "3.1.8", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.21"
 hyper = "0.14.18"
@@ -56,7 +57,7 @@ tls-api = { version = "0.7.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.7.0", features = ["runtime-tokio"] }
 tokio = { version = "1.17.0", features = ["full"] }
 tokio-stream = "0.1.8"
-viuer = { version = "0.6.0", features = ["sixel"] }
+viuer = { version = "0.6.0" }
 wild = "2.1.0-alpha.2"
 
 [profile.release]
@@ -74,6 +75,9 @@ strip = true
 [profile.release.build-override]
 opt-level = 3
 codegen-units = 1
+
+[features]
+sixel = ["viuer/sixel"]
 
 [package.metadata.deb]
 section = "utility"
