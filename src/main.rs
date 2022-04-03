@@ -25,7 +25,7 @@ use anyhow::Context;
 use clap::{arg, crate_version, ArgMatches, Command};
 use lazy_static::lazy_static;
 use mimalloc::MiMalloc;
-use std::io::Write;
+use std::io::{Read, Write};
 
 #[global_allocator]
 /// The global memory allocator
@@ -53,6 +53,16 @@ lazy_static! {
 	.arg(arg!(-y --y_offset "Vertically offset the rendered image by the given value").takes_value(true))
   .arg(arg!(-o --absolute_offset "Use absolute coordinates for the offset instead of relative coordinates"))
   .arg(arg!(-c --restore_cursor "Restore the cursor's position after printing the image"))
+  .arg(arg!(-g --grayscale "Render the image in greyscale"))
+  .arg(arg!(-i --invert "Invert the colours of the image"))
+  .arg(arg!(-l --blur "Blur the image by a specified amount").takes_value(true))
+  .arg(arg!(-n --adjust_contrast "Adjust the image contrast by a certain measure").takes_value(true))
+  .arg(arg!(-u --huerotate "Hue rotate the image by a supplied degree").takes_value(true))
+  .arg(arg!(-p --flipv "Flip the image vertically"))
+  .arg(arg!(-a --fliph "Flip the image horizontally"))
+  .arg(arg!(-d --rotate90 "Rotate the image 90 degrees clockwise"))
+  .arg(arg!(-f --rotate180 "Rotate the image 180 degrees clockwise"))
+  .arg(arg!(-j --rotate270 "Rotate the image 270 degrees clockwise"))
 	.subcommand(Command::new("show").about("Shows information regarding the usage and handling of this software")
 	.arg(arg!(-w --warranty "Prints warranty information"))
 	.arg(arg!(-c --conditions "Prints conditions information")));
@@ -103,6 +113,10 @@ async fn print_image(matches: &clap::ArgMatches) {
 	let lock = stdout.lock();
 	let mut buf_out = std::io::BufWriter::new(lock);
 
+	let stdin = std::io::stdin();
+	let in_lock = stdin.lock();
+	let mut buf_in = std::io::BufReader::new(in_lock);
+
 	let image_input: String = matches
 		.value_of("IMAGE")
 		.with_context(|| "No image provided".to_string())
@@ -114,10 +128,21 @@ async fn print_image(matches: &clap::ArgMatches) {
 	let block = matches.is_present("block");
 	let absolute_offset = matches.is_present("absolute_offset");
 	let restore_cursor = matches.is_present("restore_cursor");
+	let grayscale = matches.is_present("grayscale");
+	let invert = matches.is_present("invert");
+	let flipv = matches.is_present("flipv");
+	let fliph = matches.is_present("fliph");
+	let rotate90 = matches.is_present("rotate90");
+	let rotate180 = matches.is_present("rotate180");
+	let rotate270 = matches.is_present("rotate270");
 	let has_width = matches.is_present("width");
 	let has_height = matches.is_present("height");
 	let has_x = matches.is_present("x_offset");
 	let has_y = matches.is_present("y_offset");
+	let has_blur = matches.is_present("blur");
+	let has_contrast = matches.is_present("adjust_contrast");
+	let has_brighten = matches.is_present("brighten");
+	let has_huerotate = matches.is_present("huerotate");
 
 	let x_offset: u16 = if has_x {
 		matches
@@ -165,6 +190,47 @@ async fn print_image(matches: &clap::ArgMatches) {
 		None
 	};
 
+	let blur: f32 = if has_blur {
+		matches
+			.value_of("blur")
+			.with_context(|| "No blur amount provided".to_string())
+			.unwrap()
+			.parse()
+			.unwrap()
+	} else {
+		0.0
+	};
+	let adjust_contrast: f32 = if has_contrast {
+		matches
+			.value_of("adjust_contrast")
+			.with_context(|| "No contrast adjustment provided".to_string())
+			.unwrap()
+			.parse()
+			.unwrap()
+	} else {
+		0.0
+	};
+	let brighten: i32 = if has_brighten {
+		matches
+			.value_of("brighten")
+			.with_context(|| "No brightness adjustment provided".to_string())
+			.unwrap()
+			.parse()
+			.unwrap()
+	} else {
+		0
+	};
+	let huerotate: i32 = if has_huerotate {
+		matches
+			.value_of("huerotate")
+			.with_context(|| "No hue rotation provided".to_string())
+			.unwrap()
+			.parse()
+			.unwrap()
+	} else {
+		0
+	};
+
 	cfg_if::cfg_if! {
 	  if #[cfg(feature = "sixel")] {
 		let print_config = viuer::Config {
@@ -197,46 +263,43 @@ async fn print_image(matches: &clap::ArgMatches) {
 	}
 
 	if verbose {
+		writeln!(
+      buf_out,
+      "Requested transparency: {}\nRequested absolute offset: {}\nRequested X-offset: {}\nRequested Y-offset: {}\nRestore cursor: {}\nRequested width: {:?}\nRequested height: {:?}\nRequested true color: {}\nRequested greyscale: {}\nRequested inverted colours: {}\nRequested blur: {:?}\nRequested contrast adjustment: {:?}\nRequested hue rotation: {:?}\nRequested vertical flip: {}\nRequested horizontal flip: {}\nRequested 90 degree clockwise rotation: {}\nRequested 180 degree clockwise rotation: {}\nRequested 270 degree clockwise rotation: {}\nRequested kitty graphics protocol: {}\nTerminal supports kitty graphics protocol: {}\nRequested iTerm2 graphics protocol: {}\nTerminal supports iTerm2 graphics protocol: {}",
+      print_config.transparent,
+      print_config.absolute_offset,
+      print_config.x,
+      print_config.y,
+      print_config.restore_cursor,
+      print_config.width,
+      print_config.height,
+      print_config.truecolor,
+      grayscale,
+      invert,
+      blur,
+      adjust_contrast,
+      huerotate,
+      flipv,
+      fliph,
+      rotate90,
+      rotate180,
+      rotate270,
+      print_config.use_kitty,
+      viuer::get_kitty_support() != viuer::KittySupport::None,
+      print_config.use_iterm,
+      viuer::is_iterm_supported()
+    )
+    .unwrap();
 		cfg_if::cfg_if! {
-		  if #[cfg(feature = "sixel")] {
-			writeln!(
-			  buf_out,
-			  "iTerm graphics protocol support: {}\nkitty graphics protocol support: {}\nSixel graphics protocol support: {}\nRequested transparency: {}\nRequested absolute offset: {}\nRequested X-offset: {}\nRequested Y-offset: {}\nRestore cursor: {}\nRequested width: {:#?}\nRequested height: {:#?}\nRequested true color: {}\nRequested kitty protocol: {}\nRequested iTerm protocol: {}\nRequested Sixel protocol: {}",
-			  viuer::is_iterm_supported(),
-			  viuer::get_kitty_support() != viuer::KittySupport::None,
-			  viuer::is_sixel_supported(),
-			  print_config.transparent,
-			  print_config.absolute_offset,
-			  print_config.x,
-			  print_config.y,
-			  print_config.restore_cursor,
-			  print_config.width,
-			  print_config.height,
-			  print_config.truecolor,
-			  print_config.use_kitty,
-			  print_config.use_iterm,
-			  print_config.use_sixel
-			)
-			.unwrap();
-		  } else {
-			writeln!(
-			  buf_out,
-			  "iTerm graphics protocol support: {}\nkitty graphics protocol support: {}\nRequested transparency: {}\nRequested absolute offset: {}\nRequested X-offset: {}\nRequested Y-offset: {}\nRestore cursor: {}\nRequested width: {:#?}\nRequested height: {:#?}\nRequested true color: {}\nRequested kitty protocol: {}\nRequested iTerm protocol: {}\n",
-			  viuer::is_iterm_supported(),
-			  viuer::get_kitty_support() != viuer::KittySupport::None,
-			  print_config.transparent,
-			  print_config.absolute_offset,
-			  print_config.x,
-			  print_config.y,
-			  print_config.restore_cursor,
-			  print_config.width,
-			  print_config.height,
-			  print_config.truecolor,
-			  print_config.use_kitty,
-			  print_config.use_iterm
-			)
-			.unwrap();
-		  }
+			  if #[cfg(feature = "sixel")] {
+				writeln!(
+				  buf_out,
+				  "Requested Sixel format: {}\nTerminal supports Sixel graphics format: {}",
+				  print_config.use_sixel,
+			viuer::is_sixel_supported(),
+				)
+				.unwrap();
+		}
 		}
 	}
 
@@ -249,12 +312,37 @@ async fn print_image(matches: &clap::ArgMatches) {
 			match image_url.scheme() {
 				"file" => {
 					let image_path = image_url.to_file_path().unwrap();
-					let image = image::io::Reader::open(&image_path)
+					let mut image = image::io::Reader::open(&image_path)
 						.unwrap()
 						.with_guessed_format()
 						.unwrap()
 						.decode()
-						.unwrap();
+						.unwrap()
+						.blur(blur)
+						.adjust_contrast(adjust_contrast)
+						.brighten(brighten)
+						.huerotate(huerotate);
+					if grayscale {
+						image = image.grayscale();
+					}
+					if invert {
+						image.invert();
+					}
+					if flipv {
+						image = image.flipv();
+					}
+					if fliph {
+						image = image.fliph();
+					}
+					if rotate90 {
+						image = image.rotate90();
+					}
+					if rotate180 {
+						image = image.rotate180();
+					}
+					if rotate270 {
+						image = image.rotate270();
+					}
 					if verbose {
 						writeln!(
 							buf_out,
@@ -271,12 +359,37 @@ async fn print_image(matches: &clap::ArgMatches) {
 				}
 				"http" | "https" => {
 					let http_bytes = lib::download_http_file(image_url.to_string()).await;
-					let image = image::load_from_memory(&http_bytes).unwrap();
+					let mut image = image::load_from_memory(&http_bytes)
+						.unwrap()
+						.blur(blur)
+						.adjust_contrast(adjust_contrast)
+						.brighten(brighten)
+						.huerotate(huerotate);
+					if grayscale {
+						image = image.grayscale();
+					}
+					if invert {
+						image.invert();
+					}
+					if flipv {
+						image = image.flipv();
+					}
+					if fliph {
+						image = image.fliph();
+					}
+					if rotate90 {
+						image = image.rotate90();
+					}
+					if rotate180 {
+						image = image.rotate180();
+					}
+					if rotate270 {
+						image = image.rotate270();
+					}
 					if verbose {
 						writeln!(
 							buf_out,
-							"Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels",
-							image_input,
+							"Image width: {} pixels\nImage height: {} pixels",
 							image.width(),
 							image.height()
 						)
@@ -287,12 +400,37 @@ async fn print_image(matches: &clap::ArgMatches) {
 				"ipfs" => {
 					let ipfs_bytes =
 						lib::handle_ipfs_request_using_api(image_url.to_string()).await;
-					let image = image::load_from_memory(&ipfs_bytes).unwrap();
+					let mut image = image::load_from_memory(&ipfs_bytes)
+						.unwrap()
+						.blur(blur)
+						.adjust_contrast(adjust_contrast)
+						.brighten(brighten)
+						.huerotate(huerotate);
+					if grayscale {
+						image = image.grayscale();
+					}
+					if invert {
+						image.invert();
+					}
+					if flipv {
+						image = image.flipv();
+					}
+					if fliph {
+						image = image.fliph();
+					}
+					if rotate90 {
+						image = image.rotate90();
+					}
+					if rotate180 {
+						image = image.rotate180();
+					}
+					if rotate270 {
+						image = image.rotate270();
+					}
 					if verbose {
 						writeln!(
 							buf_out,
-							"Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels",
-							image_input,
+							"Image width: {} pixels\nImage height: {} pixels",
 							image.width(),
 							image.height()
 						)
@@ -302,12 +440,37 @@ async fn print_image(matches: &clap::ArgMatches) {
 				}
 				"tor" => {
 					let tor_bytes = lib::download_tor_file(image_url.to_string()).await;
-					let image = image::load_from_memory(&tor_bytes).unwrap();
+					let mut image = image::load_from_memory(&tor_bytes)
+						.unwrap()
+						.blur(blur)
+						.adjust_contrast(adjust_contrast)
+						.brighten(brighten)
+						.huerotate(huerotate);
+					if grayscale {
+						image = image.grayscale();
+					}
+					if invert {
+						image.invert();
+					}
+					if flipv {
+						image = image.flipv();
+					}
+					if fliph {
+						image = image.fliph();
+					}
+					if rotate90 {
+						image = image.rotate90();
+					}
+					if rotate180 {
+						image = image.rotate180();
+					}
+					if rotate270 {
+						image = image.rotate270();
+					}
 					if verbose {
 						writeln!(
 							buf_out,
-							"Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels",
-							image_input,
+							"Image width: {} pixels\nImage height: {} pixels",
 							image.width(),
 							image.height()
 						)
@@ -324,12 +487,37 @@ async fn print_image(matches: &clap::ArgMatches) {
 						image_url.password(),
 					)
 					.await;
-					let image = image::load_from_memory(&ipfs_bytes).unwrap();
+					let mut image = image::load_from_memory(&ipfs_bytes)
+						.unwrap()
+						.blur(blur)
+						.adjust_contrast(adjust_contrast)
+						.brighten(brighten)
+						.huerotate(huerotate);
+					if grayscale {
+						image = image.grayscale();
+					}
+					if invert {
+						image.invert();
+					}
+					if flipv {
+						image = image.flipv();
+					}
+					if fliph {
+						image = image.fliph();
+					}
+					if rotate90 {
+						image = image.rotate90();
+					}
+					if rotate180 {
+						image = image.rotate180();
+					}
+					if rotate270 {
+						image = image.rotate270();
+					}
 					if verbose {
 						writeln!(
 							buf_out,
-							"Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels",
-							image_input,
+							"Image width: {} pixels\nImage height: {} pixels",
 							image.width(),
 							image.height()
 						)
@@ -343,12 +531,71 @@ async fn print_image(matches: &clap::ArgMatches) {
 			}
 		}
 		Err(_) => {
-			let image = image::io::Reader::open(&image_input)
-				.unwrap()
-				.with_guessed_format()
-				.unwrap()
-				.decode()
-				.unwrap();
+			let image = if image_input != "-" {
+				let mut inner_image = image::io::Reader::open(&image_input)
+					.unwrap()
+					.with_guessed_format()
+					.unwrap()
+					.decode()
+					.unwrap()
+					.blur(blur)
+					.adjust_contrast(adjust_contrast)
+					.brighten(brighten)
+					.huerotate(huerotate);
+				if grayscale {
+					inner_image = inner_image.grayscale();
+				}
+				if invert {
+					inner_image.invert();
+				}
+				if flipv {
+					inner_image = inner_image.flipv();
+				}
+				if fliph {
+					inner_image = inner_image.fliph();
+				}
+				if rotate90 {
+					inner_image = inner_image.rotate90();
+				}
+				if rotate180 {
+					inner_image = inner_image.rotate180();
+				}
+				if rotate270 {
+					inner_image = inner_image.rotate270();
+				}
+				inner_image
+			} else {
+				let mut image_bytes: Vec<u8> = Vec::new();
+				buf_in.read_to_end(&mut image_bytes).unwrap();
+				let mut inner_image = image::load_from_memory(&image_bytes)
+					.unwrap()
+					.blur(blur)
+					.adjust_contrast(adjust_contrast)
+					.brighten(brighten)
+					.huerotate(huerotate);
+				if grayscale {
+					inner_image = inner_image.grayscale();
+				}
+				if invert {
+					inner_image.invert();
+				}
+				if flipv {
+					inner_image = inner_image.flipv();
+				}
+				if fliph {
+					inner_image = inner_image.fliph();
+				}
+				if rotate90 {
+					inner_image = inner_image.rotate90();
+				}
+				if rotate180 {
+					inner_image = inner_image.rotate180();
+				}
+				if rotate270 {
+					inner_image = inner_image.rotate270();
+				}
+				inner_image
+			};
 			if verbose {
 				writeln!(
 					buf_out,
@@ -359,9 +606,8 @@ async fn print_image(matches: &clap::ArgMatches) {
 				)
 				.unwrap();
 			}
-			viuer::print(&image, &print_config).unwrap_or_else(|_| {
-				panic!("Failed to render from file at path `{}`.", image_input)
-			});
+			viuer::print(&image, &print_config)
+				.unwrap_or_else(|_| panic!("Image printing failed."));
 		}
 	}
 	buf_out.flush().unwrap();

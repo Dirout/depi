@@ -57,7 +57,7 @@ cfg-if = "1.0.0"
 clap = { version = "3.1.8", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.21"
 hyper = "0.14.18"
-image = "0.24.1"
+image = { version = "0.24.1", features = ["default", "avif-encoder", "avif-decoder"] }
 ipfs-api-backend-hyper = { version = "0.4.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
 mimalloc = { version = "0.1.28", default-features = false }

@@ -14,10 +14,6 @@
 
 #![cfg_attr(feature = "dox", feature(doc_cfg))]
 #![allow(clippy::needless_doctest_main)]
-#![doc(
-	html_logo_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg",
-	html_favicon_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg"
-)]
 
 use async_ftp::FtpStream;
 use futures::{StreamExt, TryStreamExt};
