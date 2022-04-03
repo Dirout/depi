@@ -12,6 +12,7 @@
 	along with depi.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use async_ftp::FtpStream;
 use futures::{StreamExt, TryStreamExt};
 use ipfs_api_backend_hyper::{IpfsApi, IpfsClient};
 use tls_api::{TlsConnector, TlsConnectorBuilder};
@@ -90,4 +91,37 @@ pub async fn download_tor_file(url: String) -> Vec<u8> {
 		.await
 		.unwrap()
 		.to_vec();
+}
+
+/// Download a file to the local machine using FTP(S)
+///
+/// # Arguments
+///
+/// * `host` - The address of the FTP server
+/// 
+/// * `port` - Optional: The port of the FTP server
+/// 
+/// * `path` - The path to the file on the FTP server
+/// 
+/// * `username` - Optional: The username for the FTP server
+/// 
+/// * `password` - Optional: The password for the FTP server
+pub async fn download_ftp_file(host: &str, port: Option<u16>, path: &str, username: &str, password: Option<&str>) -> Vec<u8> {
+	let host_port = host.to_string() + ":" + port.unwrap_or(21).to_string().as_str();
+	let mut ftp_stream = FtpStream::connect(&host_port).await.expect(format!("Failed to connect to FTP server (`{}`).", host_port).as_str());
+    if username != "" || !password.is_none() {
+		let pass_field = if password.is_none() {
+			""
+		} else {
+			password.unwrap()
+		};
+		ftp_stream.login(username, pass_field).await.expect(format!("Failed to login to FTP server at `{}` (username `{}`, password: `{}`).", host_port, username, pass_field).as_str());
+	};
+
+	let remote_file = ftp_stream.simple_retr(path).await.expect(format!("Failed to download file `{}` from FTP server at `{}`.", path, host_port).as_str());
+    let bytes = remote_file.into_inner();
+
+	ftp_stream.quit().await.expect(format!("Failed to quit FTP connection to `{}`.", host_port).as_str());
+
+	return bytes;
 }

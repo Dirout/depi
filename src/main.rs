@@ -33,13 +33,15 @@ lazy_static! {
 	.version(crate_version!())
 	.author("Emil Sayahi")
 	.about("depi is a command-line tool for viewing images.")
+  .args_conflicts_with_subcommands(true)
+  .subcommand_negates_reqs(true)
 	.arg(arg!(<IMAGE> "URL or path pointing to an image file").required(true).takes_value(true).multiple_values(false))
 	.arg(arg!(-v --verbose "Show relevant information on output"))
 	.arg(arg!(-t --transparent "Show transparency rather than a checkerboard background (if using block output)"))
   .arg(arg!(-r --truecolor "Use full range of colours, if supported by the terminal"))
 	.arg(arg!(-b --block "Force block output"))
   .arg(arg!(-w --width "Render image with a specific width dimension").takes_value(true))
-	.arg(arg!(-h --height "Render image with a specific height dimension").takes_value(true))
+	.arg(arg!(-e --height "Render image with a specific height dimension").takes_value(true))
 	.arg(arg!(-x --x_offset "Horizontally offset the rendered image by the given value").takes_value(true))
 	.arg(arg!(-y --y_offset "Vertically offset the rendered image by the given value").takes_value(true))
   .arg(arg!(-o --absolute_offset "Use absolute coordinates for the offset instead of relative coordinates"))
@@ -289,6 +291,22 @@ async fn print_image(matches: &clap::ArgMatches) {
 				"tor" => {
 					let tor_bytes = lib::download_tor_file(image_url.to_string()).await;
 					let image = image::load_from_memory(&tor_bytes).unwrap();
+					if verbose {
+						writeln!(
+							buf_out,
+							"Image path: `{}`\nImage width: {} pixels\nImage height: {} pixels",
+							image_input,
+							image.width(),
+							image.height()
+						)
+						.unwrap();
+					}
+					viuer::print(&image, &print_config).expect("Image printing failed.");
+				}
+        "ftp" | "ftps" => {
+					let ipfs_bytes =
+						lib::download_ftp_file(image_url.host_str().unwrap(), image_url.port(), image_url.path(), image_url.username(), image_url.password()).await;
+					let image = image::load_from_memory(&ipfs_bytes).unwrap();
 					if verbose {
 						writeln!(
 							buf_out,
