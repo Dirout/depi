@@ -123,12 +123,23 @@ pub async fn download_ftp_file(
 		} else {
 			password.unwrap()
 		};
-		ftp_stream.login(username, pass_field).await.unwrap_or_else(|_| panic!("Failed to login to FTP server at `{}` (username `{}`, password: `{}`).",
-				host_port, username, pass_field));
+		ftp_stream
+			.login(username, pass_field)
+			.await
+			.unwrap_or_else(|_| {
+				panic!(
+					"Failed to login to FTP server at `{}` (username `{}`, password: `{}`).",
+					host_port, username, pass_field
+				)
+			});
 	};
 
-	let remote_file = ftp_stream.simple_retr(path).await.unwrap_or_else(|_| panic!("Failed to download file `{}` from FTP server at `{}`.",
-			path, host_port));
+	let remote_file = ftp_stream.simple_retr(path).await.unwrap_or_else(|_| {
+		panic!(
+			"Failed to download file `{}` from FTP server at `{}`.",
+			path, host_port
+		)
+	});
 	let bytes = remote_file.into_inner();
 
 	ftp_stream
