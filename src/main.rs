@@ -303,9 +303,15 @@ async fn print_image(matches: &clap::ArgMatches) {
 					}
 					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
-        "ftp" | "ftps" => {
-					let ipfs_bytes =
-						lib::download_ftp_file(image_url.host_str().unwrap(), image_url.port(), image_url.path(), image_url.username(), image_url.password()).await;
+				"ftp" | "ftps" => {
+					let ipfs_bytes = lib::download_ftp_file(
+						image_url.host_str().unwrap(),
+						image_url.port(),
+						image_url.path(),
+						image_url.username(),
+						image_url.password(),
+					)
+					.await;
 					let image = image::load_from_memory(&ipfs_bytes).unwrap();
 					if verbose {
 						writeln!(
