@@ -11,6 +11,14 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with depi.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+#![cfg_attr(feature = "dox", feature(doc_cfg))]
+#![allow(clippy::needless_doctest_main)]
+#![doc(
+	html_logo_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg",
+	html_favicon_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg"
+)]
+
 #![feature(panic_info_message)]
 mod lib;
 
@@ -25,7 +33,7 @@ use std::io::Write;
 static GLOBAL: MiMalloc = MiMalloc;
 
 lazy_static! {
-  ///
+  /// The arguments passed to the depi executable file
   static ref ARGS: Vec<std::ffi::OsString> = argfile::expand_args_from(wild::args_os(), argfile::parse_fromfile, argfile::PREFIX,).unwrap();
 
 	/// The command-line interface (CLI) of depi
@@ -86,6 +94,11 @@ async fn main() {
 	}
 }
 
+/// Prints an image to the terminal, as specified by the user's input
+/// 
+/// # Arguments
+/// 
+/// * `matches` - The arguments passed to the depi CLI
 async fn print_image(matches: &clap::ArgMatches) {
 	let stdout = std::io::stdout();
 	let lock = stdout.lock();
