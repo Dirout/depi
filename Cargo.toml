@@ -40,9 +40,9 @@ doc = true
 [dependencies]
 anyhow = "1.0.56"
 argfile = "0.1.4"
-arti-client = { version = "0.1.0", features = ["static"] }
-arti-hyper = "0.1.0"
-clap = { version = "3.1.6", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
+arti-client = { version = "0.2.0", features = ["static"] }
+arti-hyper = "0.2.0"
+clap = { version = "3.1.8", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.21"
 hyper = "0.14.18"
 image = "0.24.1"
@@ -52,7 +52,7 @@ mimalloc = { version = "0.1.28", default-features = false }
 url = "2.2.2"
 urlencoding = "2.1.0"
 reqwest = { version = "0.11.10", features = ["stream"] }
-tls-api = {version = "0.7.0", features = ["runtime-tokio"] }
+tls-api = { version = "0.7.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.7.0", features = ["runtime-tokio"] }
 tokio = { version = "1.17.0", features = ["full"] }
 tokio-stream = "0.1.8"
