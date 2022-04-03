@@ -9,6 +9,10 @@ jobs:
     name: 'Publish: crates.io'
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch dependencies
+        run:  |
+          sudo apt-get update > /dev/null
+          sudo apt-get install -qq libsixel-dev libsixel-bin > /dev/null
       - name: Checkout codebase
         uses: actions/checkout@v3
       - name: Setup Rust toolchain

@@ -24,6 +24,16 @@ description = "Command-line tool for viewing images."
 repository = "https://github.com/Dirout/depi"
 homepage = "https://github.com/Dirout/depi"
 readme = "README"
+include = [
+    "**/*.rs",
+    "Cargo.toml",
+    "COPYING",
+    "LICENSE.md",
+    "NOTICE",
+    "rust-toolchain",
+    "rustfmt.toml",
+    ".cargo/*",
+]
 
 [lib]
 name = "depi"
@@ -58,7 +68,7 @@ tls-api = { version = "0.7.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.7.0", features = ["runtime-tokio"] }
 tokio = { version = "1.17.0", features = ["full"] }
 tokio-stream = "0.1.8"
-viuer = { version = "0.6.0" }
+viuer = "0.6.0"
 wild = "2.1.0-alpha.2"
 
 [profile.release]
