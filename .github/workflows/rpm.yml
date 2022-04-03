@@ -1,4 +1,7 @@
-on: [push]
+on:
+  push:
+    branches:    
+      - 'master'
 
 name: 'Package: RPM for GNU + Linux (x86_64)'
 
