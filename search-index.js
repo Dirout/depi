@@ -1,0 +1,4 @@
+var searchIndex = JSON.parse('{\
+"depi":{"doc":"","t":[5,5,5,5,5],"n":["download_ftp_file","download_http_file","download_ipfs_file_from_api","download_tor_file","handle_ipfs_request_using_api"],"q":["depi","","","",""],"d":["Download a file to the local machine using FTP(S)","Download a file to the local machine using HTTP(S)","Download an IPFS file to the local machine using an …","Download a file to the local machine using Tor","Comply with a request using the IPFS scheme with a daemon"],"i":[0,0,0,0,0],"f":[[[["str",0],["option",4,[["u16",0]]],["str",0],["str",0],["option",4,[["str",0]]]]],[[["string",3]]],[[["string",3]]],[[["string",3]]],[[["string",3]]]],"p":[]}\
+}');
+if (window.initSearch) {window.initSearch(searchIndex)};
