@@ -18,7 +18,6 @@
 	html_logo_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg",
 	html_favicon_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg"
 )]
-
 #![feature(panic_info_message)]
 mod lib;
 
@@ -95,9 +94,9 @@ async fn main() {
 }
 
 /// Prints an image to the terminal, as specified by the user's input
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `matches` - The arguments passed to the depi CLI
 async fn print_image(matches: &clap::ArgMatches) {
 	let stdout = std::io::stdout();
