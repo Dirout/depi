@@ -60,7 +60,7 @@ hyper = "0.14.18"
 image = { version = "0.24.1", default-features = true }
 ipfs-api-backend-hyper = { version = "0.4.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
-mimalloc = { version = "0.1.28", default-features = false }
+mimalloc = { version = "0.1.29", default-features = false }
 url = "2.2.2"
 urlencoding = "2.1.0"
 reqwest = { version = "0.11.10", features = ["stream"] }
