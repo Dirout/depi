@@ -15,8 +15,8 @@
 #![cfg_attr(feature = "dox", feature(doc_cfg))]
 #![allow(clippy::needless_doctest_main)]
 
-use arti_hyper::*;
 use arti_client::{TorClient, TorClientConfig};
+use arti_hyper::*;
 use async_ftp::FtpStream;
 use futures::{StreamExt, TryStreamExt};
 use hyper::Body;
