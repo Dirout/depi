@@ -15,8 +15,11 @@
 #![cfg_attr(feature = "dox", feature(doc_cfg))]
 #![allow(clippy::needless_doctest_main)]
 
+use arti_hyper::*;
+use arti_client::{TorClient, TorClientConfig};
 use async_ftp::FtpStream;
 use futures::{StreamExt, TryStreamExt};
+use hyper::Body;
 use ipfs_api_backend_hyper::{IpfsApi, IpfsClient};
 use tls_api::{TlsConnector, TlsConnectorBuilder};
 
@@ -87,8 +90,8 @@ pub async fn download_tor_file(url: String) -> Vec<u8> {
 		.unwrap()
 		.build()
 		.unwrap();
-	let tor_connector = arti_hyper::ArtiHttpConnector::new(tor_client, tls_connector);
-	let http = hyper::Client::builder().build::<_, hyper::Body>(tor_connector);
+	let tor_connector = ArtiHttpConnector::new(tor_client, tls_connector);
+	let http = hyper::Client::builder().build::<_, Body>(tor_connector);
 	let mut resp = http.get(url.try_into().unwrap()).await.unwrap();
 	return hyper::body::to_bytes(resp.body_mut())
 		.await
