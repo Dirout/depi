@@ -51,7 +51,7 @@ doc = true
 anyhow = "1.0.57"
 argfile = "0.1.4"
 arti-client = { version = "0.2.0", features = ["static"] }
-arti-hyper = "0.2.0"
+arti-hyper = "0.3.0"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
 clap = { version = "3.1.14", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
