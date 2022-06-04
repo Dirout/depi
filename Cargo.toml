@@ -67,7 +67,7 @@ reqwest = { version = "0.11.10", features = ["stream"] }
 tls-api = { version = "0.7.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.7.0", features = ["runtime-tokio"] }
 tokio = { version = "1.18.0", features = ["full"] }
-tokio-stream = "0.1.8"
+tokio-stream = "0.1.9"
 viuer = "0.6.1"
 wild = "2.1.0-alpha.2"
 
