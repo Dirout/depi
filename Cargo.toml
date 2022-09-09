@@ -61,7 +61,7 @@ image = { version = "0.24.2", default-features = true }
 ipfs-api-backend-hyper = { version = "0.5.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
 mimalloc = { version = "0.1.29", default-features = false }
-url = "2.2.2"
+url = "2.3.1"
 urlencoding = "2.1.0"
 reqwest = { version = "0.11.10", features = ["stream"] }
 tls-api = { version = "0.9.0", features = ["runtime-tokio"] }
