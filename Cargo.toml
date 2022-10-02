@@ -49,7 +49,7 @@ doc = true
 
 [dependencies]
 anyhow = "1.0.65"
-argfile = "0.1.4"
+argfile = "0.1.5"
 arti-client = { version = "0.6.0", features = ["static"] }
 arti-hyper = "0.6.0"
 async_ftp = { version = "6.0.0", features = ["secure"] }
@@ -57,7 +57,7 @@ cfg-if = "1.0.0"
 clap = { version = "3.2.22", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.24"
 hyper = "0.14.20"
-image = { version = "0.24.3", default-features = true }
+image = { version = "0.24.4", default-features = true }
 ipfs-api-backend-hyper = { version = "0.5.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
 mimalloc = { version = "0.1.29", default-features = false }
@@ -66,7 +66,7 @@ urlencoding = "2.1.2"
 reqwest = { version = "0.11.12", features = ["stream"] }
 tls-api = { version = "0.9.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.9.0", features = ["runtime-tokio"] }
-tokio = { version = "1.21.1", features = ["full"] }
+tokio = { version = "1.21.2", features = ["full"] }
 tokio-stream = "0.1.10"
 viuer = "0.6.1"
 wild = "2.1.0"
