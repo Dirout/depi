@@ -54,7 +54,7 @@ arti-client = { version = "0.6.0", features = ["static"] }
 arti-hyper = "0.6.0"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
-clap = { version = "3.2.22", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
+clap = { version = "4.0.10", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.24"
 hyper = "0.14.20"
 image = { version = "0.24.4", default-features = true }
