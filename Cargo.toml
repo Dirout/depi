@@ -48,14 +48,14 @@ doc = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.65"
+anyhow = "1.0.66"
 argfile = "0.1.5"
 arti-client = { version = "0.6.0", features = ["static"] }
 arti-hyper = "0.6.0"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
 clap = { version = "3.2.22", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
-futures = "0.3.24"
+futures = "0.3.25"
 hyper = "0.14.20"
 image = { version = "0.24.4", default-features = true }
 ipfs-api-backend-hyper = { version = "0.5.0", features = ["with-hyper-tls"] }
@@ -68,7 +68,7 @@ tls-api = { version = "0.9.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.9.0", features = ["runtime-tokio"] }
 tokio = { version = "1.21.2", features = ["full"] }
 tokio-stream = "0.1.11"
-viuer = "0.6.1"
+viuer = "0.6.2"
 wild = "2.1.0"
 
 [profile.release]
