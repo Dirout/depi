@@ -48,7 +48,7 @@ doc = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.67"
+anyhow = "1.0.68"
 argfile = "0.1.5"
 arti-client = { version = "0.6.0", features = ["static"] }
 arti-hyper = "0.6.0"
