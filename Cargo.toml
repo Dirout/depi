@@ -12,10 +12,9 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with depi.  If not, see <https://www.gnu.org/licenses/>.
-cargo-features = ["strip"]
 [package]
 name = "depi"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Emil Sayahi <limesayahi@gmail.com>"]
 edition = "2021"
 resolver = "2"
@@ -38,7 +37,7 @@ include = [
 [lib]
 name = "depi"
 path = "src/lib.rs"
-crate-type=["rlib", "dylib", "staticlib"]
+crate-type=["rlib", "cdylib", "staticlib"]
 
 [[bin]]
 name = "depi"
@@ -50,15 +49,15 @@ doc = true
 [dependencies]
 anyhow = "1.0.68"
 argfile = "0.1.5"
-arti-client = { version = "0.6.0", features = ["static"] }
-arti-hyper = "0.6.0"
+arti-client = { version = "0.8.0", features = ["static"] }
+arti-hyper = "0.8.0"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
-clap = { version = "3.2.23", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
+clap = { version = "4.0.32", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.25"
 hyper = "0.14.23"
 image = { version = "0.24.5", default-features = true }
-ipfs-api-backend-hyper = { version = "0.5.0", features = ["with-hyper-tls"] }
+ipfs-api-backend-hyper = { version = "0.6.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
 mimalloc = { version = "0.1.34", default-features = false }
 url = "2.3.1"
@@ -80,7 +79,6 @@ overflow-checks = false
 lto = true
 incremental = false
 rpath = false
-panic = 'abort'
 strip = true
 
 [profile.release.build-override]
@@ -101,11 +99,11 @@ assets = [
     ["COPYING", "usr/share/doc/depi/COPYING", "644"],
 ]
 
-[package.metadata.rpm]
-package = "depi"
-
-[package.metadata.rpm.cargo]
-buildflags = ["--release"]
-
-[package.metadata.rpm.targets]
-depi = { path = "/usr/bin/depi" }
+[package.metadata.generate-rpm]
+assets = [
+  { source = "target/release/depi", dest = "/usr/bin/depi", mode = "755" },
+  { source = "target/release/libdepi.so", dest = "/usr/lib/libdepi.so", mode = "755" },
+  { source = "target/release/libdepi.a", dest = "/usr/lib/libdepi.a", mode = "755" },
+  { source = "README", dest = "/usr/share/doc/ticky/README", mode = "644" },
+  { source = "COPYING", dest = "/usr/share/doc/ticky/COPYING", mode = "644" },
+]

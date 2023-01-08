@@ -12,17 +12,15 @@
 	along with depi.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#![cfg_attr(feature = "dox", feature(doc_cfg))]
 #![allow(clippy::needless_doctest_main)]
 #![doc(
 	html_logo_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg",
 	html_favicon_url = "https://github.com/Dirout/Dirout.github.io/raw/master/branding/vector/logo.svg"
 )]
 #![feature(panic_info_message)]
-mod lib;
 
 use anyhow::Context;
-use clap::{arg, crate_version, ArgMatches, Command};
+use clap::{arg, crate_version, value_parser, ArgMatches, Command};
 use lazy_static::lazy_static;
 use mimalloc::MiMalloc;
 use std::io::{Read, Write};
@@ -36,36 +34,37 @@ lazy_static! {
   static ref ARGS: Vec<std::ffi::OsString> = argfile::expand_args_from(wild::args_os(), argfile::parse_fromfile, argfile::PREFIX,).unwrap();
 
 	/// The command-line interface (CLI) of depi
-	static ref APP: clap::Command<'static> = Command::new("depi")
+	static ref APP: clap::Command = Command::new("depi")
 	.version(crate_version!())
 	.author("Emil Sayahi")
 	.about("depi is a command-line tool for viewing images.")
   .args_conflicts_with_subcommands(true)
   .subcommand_negates_reqs(true)
-	.arg(arg!(<IMAGE> "URL or path pointing to an image file").required(true).takes_value(true).multiple_values(false))
-	.arg(arg!(-v --verbose "Show relevant information on output"))
-	.arg(arg!(-t --transparent "Show transparency rather than a checkerboard background (if using block output)"))
-  .arg(arg!(-r --truecolor "Use full range of colours, if supported by the terminal"))
-	.arg(arg!(-b --block "Force block output"))
-  .arg(arg!(-w --width "Render image with a specific width dimension").takes_value(true))
-	.arg(arg!(-e --height "Render image with a specific height dimension").takes_value(true))
-	.arg(arg!(-x --x_offset "Horizontally offset the rendered image by the given value").takes_value(true))
-	.arg(arg!(-y --y_offset "Vertically offset the rendered image by the given value").takes_value(true))
-  .arg(arg!(-o --absolute_offset "Use absolute coordinates for the offset instead of relative coordinates"))
-  .arg(arg!(-c --restore_cursor "Restore the cursor's position after printing the image"))
-  .arg(arg!(-g --grayscale "Render the image in greyscale"))
-  .arg(arg!(-i --invert "Invert the colours of the image"))
-  .arg(arg!(-l --blur "Blur the image by a specified amount").takes_value(true))
-  .arg(arg!(-n --adjust_contrast "Adjust the image contrast by a certain measure").takes_value(true))
-  .arg(arg!(-u --huerotate "Hue rotate the image by a supplied degree").takes_value(true))
-  .arg(arg!(-p --flipv "Flip the image vertically"))
-  .arg(arg!(-a --fliph "Flip the image horizontally"))
-  .arg(arg!(-d --rotate90 "Rotate the image 90 degrees clockwise"))
-  .arg(arg!(-f --rotate180 "Rotate the image 180 degrees clockwise"))
-  .arg(arg!(-j --rotate270 "Rotate the image 270 degrees clockwise"))
+	.arg(arg!(<IMAGE> "URL or path pointing to an image file").required(true).value_parser(value_parser!(String)).num_args(1))
+	.arg(arg!(-v --verbose "Show relevant information on output").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-t --transparent "Show transparency rather than a checkerboard background (if using block output)").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-c --truecolor "Use full range of colours, if supported by the terminal").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-b --block "Force block output").action(clap::ArgAction::SetTrue))
+	.arg(arg!(width: "Render image with a specific width dimension").value_parser(value_parser!(u32)))
+	.arg(arg!(height: "Render image with a specific height dimension").value_parser(value_parser!(u32)))
+	.arg(arg!(x_offset: "Horizontally offset the rendered image by the given value").value_parser(value_parser!(u16)).default_value("0"))
+	.arg(arg!(y_offset: "Vertically offset the rendered image by the given value").value_parser(value_parser!(i16)).default_value("0"))
+	.arg(arg!(-o --absolute_offset "Use absolute coordinates for the offset instead of relative coordinates").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-r --restore_cursor "Restore the cursor's position after printing the image").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-g --grayscale "Render the image in greyscale").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-i --invert "Invert the colours of the image").action(clap::ArgAction::SetTrue))
+	.arg(arg!(blur: "Blur the image by a specified amount").value_parser(value_parser!(f32)).default_value("0.0"))
+	.arg(arg!(adjust_contrast: "Adjust the image contrast by a certain measure").value_parser(value_parser!(f32)).default_value("0.0"))
+	.arg(arg!(brighten: "Brighten the image by a supplied degree").value_parser(value_parser!(i32)).default_value("0"))
+	.arg(arg!(huerotate: "Hue rotate the image by a supplied degree").value_parser(value_parser!(i32)).default_value("0"))
+	.arg(arg!(-p --flipv "Flip the image vertically").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-f --fliph "Flip the image horizontally").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-j --rotate90 "Rotate the image 90 degrees clockwise").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-k --rotate180 "Rotate the image 180 degrees clockwise").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-m --rotate270 "Rotate the image 270 degrees clockwise").action(clap::ArgAction::SetTrue))
 	.subcommand(Command::new("show").about("Shows information regarding the usage and handling of this software")
-	.arg(arg!(-w --warranty "Prints warranty information"))
-	.arg(arg!(-c --conditions "Prints conditions information")));
+	.arg(arg!(-w --warranty "Prints warranty information").action(clap::ArgAction::SetTrue))
+	.arg(arg!(-c --conditions "Prints conditions information").action(clap::ArgAction::SetTrue)));
 
 	/// The arguments passed to the depi CLI
 	static ref MATCHES: ArgMatches = APP.clone().get_matches_from(ARGS.clone().into_iter());
@@ -87,7 +86,7 @@ async fn main() {
 
 	println!(
 		"
-    depi  Copyright (C) 2022  Emil Sayahi
+    depi  Copyright (C) 2022-2023  Emil Sayahi
     This program comes with ABSOLUTELY NO WARRANTY; for details type `depi show -w'.
     This is free software, and you are welcome to redistribute it
     under certain conditions; type `depi show -c' for details.
@@ -118,118 +117,59 @@ async fn print_image(matches: &clap::ArgMatches) {
 	let mut buf_in = std::io::BufReader::new(in_lock);
 
 	let image_input: String = matches
-		.value_of("IMAGE")
+		.get_one::<String>("IMAGE")
 		.with_context(|| "No image provided".to_string())
 		.unwrap()
 		.to_string();
-	let verbose = matches.is_present("verbose");
-	let transparent = matches.is_present("transparent");
-	let truecolor = matches.is_present("truecolor");
-	let block = matches.is_present("block");
-	let absolute_offset = matches.is_present("absolute_offset");
-	let restore_cursor = matches.is_present("restore_cursor");
-	let grayscale = matches.is_present("grayscale");
-	let invert = matches.is_present("invert");
-	let flipv = matches.is_present("flipv");
-	let fliph = matches.is_present("fliph");
-	let rotate90 = matches.is_present("rotate90");
-	let rotate180 = matches.is_present("rotate180");
-	let rotate270 = matches.is_present("rotate270");
-	let has_width = matches.is_present("width");
-	let has_height = matches.is_present("height");
-	let has_x = matches.is_present("x_offset");
-	let has_y = matches.is_present("y_offset");
-	let has_blur = matches.is_present("blur");
-	let has_contrast = matches.is_present("adjust_contrast");
-	let has_brighten = matches.is_present("brighten");
-	let has_huerotate = matches.is_present("huerotate");
+	let verbose = matches.get_flag("verbose");
+	let transparent = matches.get_flag("transparent");
+	let truecolor = matches.get_flag("truecolor");
+	let block = matches.get_flag("block");
+	let absolute_offset = matches.get_flag("absolute_offset");
+	let restore_cursor = matches.get_flag("restore_cursor");
+	let grayscale = matches.get_flag("grayscale");
+	let invert = matches.get_flag("invert");
+	let flipv = matches.get_flag("flipv");
+	let fliph = matches.get_flag("fliph");
+	let rotate90 = matches.get_flag("rotate90");
+	let rotate180 = matches.get_flag("rotate180");
+	let rotate270 = matches.get_flag("rotate270");
 
-	let x_offset: u16 = if has_x {
-		matches
-			.value_of("x_offset")
-			.with_context(|| "No X-offset provided".to_string())
-			.unwrap()
-			.parse()
-			.unwrap()
-	} else {
-		0
-	};
-	let y_offset: i16 = if has_y {
-		matches
-			.value_of("y_offset")
-			.with_context(|| "No Y-offset provided".to_string())
-			.unwrap()
-			.parse()
-			.unwrap()
-	} else {
-		0
-	};
+	let x_offset: u16 = matches
+		.get_one::<u16>("x_offset")
+		.with_context(|| "No X-offset provided".to_string())
+		.unwrap()
+		.to_owned();
 
-	let width: Option<u32> = if has_width {
-		Some(
-			matches
-				.value_of("width")
-				.with_context(|| "No width provided".to_string())
-				.unwrap()
-				.parse()
-				.unwrap(),
-		)
-	} else {
-		None
-	};
-	let height: Option<u32> = if has_height {
-		Some(
-			matches
-				.value_of("height")
-				.with_context(|| "No height provided".to_string())
-				.unwrap()
-				.parse()
-				.unwrap(),
-		)
-	} else {
-		None
-	};
+	let y_offset: i16 = matches
+		.get_one::<i16>("y_offset")
+		.with_context(|| "No Y-offset provided".to_string())
+		.unwrap()
+		.to_owned();
 
-	let blur: f32 = if has_blur {
-		matches
-			.value_of("blur")
-			.with_context(|| "No blur amount provided".to_string())
-			.unwrap()
-			.parse()
-			.unwrap()
-	} else {
-		0.0
-	};
-	let adjust_contrast: f32 = if has_contrast {
-		matches
-			.value_of("adjust_contrast")
-			.with_context(|| "No contrast adjustment provided".to_string())
-			.unwrap()
-			.parse()
-			.unwrap()
-	} else {
-		0.0
-	};
-	let brighten: i32 = if has_brighten {
-		matches
-			.value_of("brighten")
-			.with_context(|| "No brightness adjustment provided".to_string())
-			.unwrap()
-			.parse()
-			.unwrap()
-	} else {
-		0
-	};
-	let huerotate: i32 = if has_huerotate {
-		matches
-			.value_of("huerotate")
-			.with_context(|| "No hue rotation provided".to_string())
-			.unwrap()
-			.parse()
-			.unwrap()
-	} else {
-		0
-	};
+	let width: Option<u32> = matches.get_one::<u32>("width").copied();
+	let height: Option<u32> = matches.get_one::<u32>("height").copied();
+
+	let blur: f32 = matches
+		.get_one::<f32>("blur")
+		.with_context(|| "No blur amount provided".to_string())
+		.unwrap()
+		.to_owned();
+	let adjust_contrast: f32 = matches
+		.get_one::<f32>("adjust_contrast")
+		.with_context(|| "No contrast adjustment provided".to_string())
+		.unwrap()
+		.to_owned();
+	let brighten: i32 = matches
+		.get_one::<i32>("brighten")
+		.with_context(|| "No brightness adjustment provided".to_string())
+		.unwrap()
+		.to_owned();
+	let huerotate: i32 = matches
+		.get_one::<i32>("huerotate")
+		.with_context(|| "No hue rotation provided".to_string())
+		.unwrap()
+		.to_owned();
 
 	cfg_if::cfg_if! {
 	  if #[cfg(feature = "sixel")] {
@@ -358,7 +298,7 @@ async fn print_image(matches: &clap::ArgMatches) {
 					});
 				}
 				"http" | "https" => {
-					let http_bytes = lib::download_http_file(image_url.to_string()).await;
+					let http_bytes = depi::download_http_file(image_url.to_string()).await;
 					let mut image = image::load_from_memory(&http_bytes)
 						.unwrap()
 						.blur(blur)
@@ -399,7 +339,7 @@ async fn print_image(matches: &clap::ArgMatches) {
 				}
 				"ipfs" => {
 					let ipfs_bytes =
-						lib::handle_ipfs_request_using_api(image_url.to_string()).await;
+						depi::handle_ipfs_request_using_api(image_url.to_string()).await;
 					let mut image = image::load_from_memory(&ipfs_bytes)
 						.unwrap()
 						.blur(blur)
@@ -439,7 +379,7 @@ async fn print_image(matches: &clap::ArgMatches) {
 					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				"tor" => {
-					let tor_bytes = lib::download_tor_file(image_url.to_string()).await;
+					let tor_bytes = depi::download_tor_file(image_url.to_string()).await;
 					let mut image = image::load_from_memory(&tor_bytes)
 						.unwrap()
 						.blur(blur)
@@ -479,7 +419,7 @@ async fn print_image(matches: &clap::ArgMatches) {
 					viuer::print(&image, &print_config).expect("Image printing failed.");
 				}
 				"ftp" | "ftps" => {
-					let ipfs_bytes = lib::download_ftp_file(
+					let ipfs_bytes = depi::download_ftp_file(
 						image_url.host_str().unwrap(),
 						image_url.port(),
 						image_url.path(),
@@ -621,7 +561,7 @@ async fn print_image(matches: &clap::ArgMatches) {
 ///
 /// * `conditions` - Prints conditions information
 fn show(matches: &clap::ArgMatches) {
-	if matches.is_present("warranty") {
+	if matches.get_flag("warranty") {
 		// "depi show -w" was run
 		println!(
 			"
@@ -657,7 +597,7 @@ fn show(matches: &clap::ArgMatches) {
   copy of the Program in return for a fee.
   "
 		);
-	} else if matches.is_present("conditions") {
+	} else if matches.get_flag("conditions") {
 		// "depi show -c" was run
 		println!(
 			"

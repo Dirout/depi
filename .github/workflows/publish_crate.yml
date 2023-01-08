@@ -12,7 +12,7 @@ jobs:
       - name: Fetch dependencies
         run:  |
           sudo apt-get update > /dev/null
-          sudo apt-get install -qq libsixel-dev libsixel-bin > /dev/null
+          sudo apt-get install -qq libsixel-dev libsixel-bin libssl-dev build-essential > /dev/null
       - name: Checkout codebase
         uses: actions/checkout@v3
       - name: Setup Rust toolchain

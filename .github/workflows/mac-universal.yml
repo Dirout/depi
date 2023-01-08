@@ -1,0 +1,94 @@
+on:
+  push:
+    branches:    
+      - 'master'
+
+name: 'Build: macOS (Universal)'
+
+jobs:
+  mac_universal:
+    name: macOS (Universal)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+      - name: Install development dependencies
+        run: |
+          brew update > /dev/null
+          brew install openssl openssl@1.1 > /dev/null
+      - name: Setup Rust toolchain for AMD64
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: x86_64-apple-darwin
+          default: true
+          profile: minimal
+      - name: Setup Rust toolchain for ARM64
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: aarch64-apple-darwin
+          default: false
+          profile: minimal
+      - name: Build depi for AMD64
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: false
+          command: build
+          args: --release --target x86_64-apple-darwin --all-features
+      - name: Build depi for AARCH64
+        run: |
+          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) \
+          cargo build --release --target=aarch64-apple-darwin --all-features
+      - name: Prepare depi for upload
+        run: |
+          lipo -create \
+          -output target/depi \
+          target/aarch64-apple-darwin/release/depi \
+          target/x86_64-apple-darwin/release/depi
+          lipo -create \
+          -output target/libdepi.dylib \
+          target/aarch64-apple-darwin/release/libdepi.dylib \
+          target/x86_64-apple-darwin/release/libdepi.dylib
+          lipo -create \
+          -output target/libdepi.a \
+          target/aarch64-apple-darwin/release/libdepi.a \
+          target/x86_64-apple-darwin/release/libdepi.a
+          cd ./target
+          tar -cvf universal-depi.osx.tar \
+          depi \
+          libdepi.dylib \
+          libdepi.a
+
+          cd ./x86_64-apple-darwin/release/
+          tar -cvf x86_64-depi.osx.tar \
+          depi \
+          libdepi.dylib \
+          libdepi.a
+
+          cd ../../aarch64-apple-darwin/release/
+          strip ./depi
+          chmod +x ./depi
+          tar -cvf aarch64-depi.osx.tar \
+          depi \
+          libdepi.dylib \
+          libdepi.a
+      - name: Upload depi AMD64 build artifacts to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: x86_64-depi.osx
+          path: ./target/x86_64-apple-darwin/release/x86_64-depi.osx.tar
+          if-no-files-found: error
+      - name: Upload depi ARM64 build artifacts to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: aarch64-depi.osx
+          path: ./target/aarch64-apple-darwin/release/aarch64-depi.osx.tar
+          if-no-files-found: error
+      - name: Upload depi Universal build artifacts to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: universal-depi.osx
+          path: ./target/universal-depi.osx.tar
+          if-no-files-found: error
