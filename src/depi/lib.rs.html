@@ -152,8 +152,6 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
 </pre><pre class="rust"><code><span class="comment">/*
 	This file is part of depi.
 	depi is free software: you can redistribute it and/or modify
@@ -223,7 +221,7 @@
 				file_vec.extend(bytes);
 			}
 			<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; {
-				<span class="macro">eprintln!</span>(<span class="string">&quot;Error: {}&quot;</span>, e);
+				<span class="macro">eprintln!</span>(<span class="string">&quot;Error: {e}&quot;</span>);
 			}
 			<span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
 		}
@@ -277,7 +275,7 @@
 	<span class="kw">let </span>host_port = host.to_string() + <span class="string">&quot;:&quot; </span>+ port.unwrap_or(<span class="number">21</span>).to_string().as_str();
 	<span class="kw">let </span><span class="kw-2">mut </span>ftp_stream = FtpStream::connect(<span class="kw-2">&amp;</span>host_port)
 		.<span class="kw">await
-		</span>.unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Failed to connect to FTP server (`{}`).&quot;</span>, host_port));
+		</span>.unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Failed to connect to FTP server (`{host_port}`).&quot;</span>));
 	<span class="kw">if </span>!username.is_empty() || password.is_some() {
 		<span class="kw">let </span>pass_field = <span class="kw">if </span>password.is_none() {
 			<span class="string">&quot;&quot;
@@ -289,24 +287,22 @@
 			.<span class="kw">await
 			</span>.unwrap_or_else(|<span class="kw">_</span>| {
 				<span class="macro">panic!</span>(
-					<span class="string">&quot;Failed to login to FTP server at `{}` (username `{}`, password: `{}`).&quot;</span>,
-					host_port, username, pass_field
-				)
+					<span class="string">&quot;Failed to login to FTP server at `{host_port}` (username `{username}`, password: `{pass_field}`).&quot;
+				</span>)
 			});
 	};
 
 	<span class="kw">let </span>remote_file = ftp_stream.simple_retr(path).<span class="kw">await</span>.unwrap_or_else(|<span class="kw">_</span>| {
 		<span class="macro">panic!</span>(
-			<span class="string">&quot;Failed to download file `{}` from FTP server at `{}`.&quot;</span>,
-			path, host_port
-		)
+			<span class="string">&quot;Failed to download file `{path}` from FTP server at `{host_port}`.&quot;
+		</span>)
 	});
 	<span class="kw">let </span>bytes = remote_file.into_inner();
 
 	ftp_stream
 		.quit()
 		.<span class="kw">await
-		</span>.unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Failed to quit FTP connection to `{}`.&quot;</span>, host_port));
+		</span>.unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Failed to quit FTP connection to `{host_port}`.&quot;</span>));
 
 	bytes
 }
