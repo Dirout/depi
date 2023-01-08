@@ -247,12 +247,12 @@ async fn print_image(matches: &clap::ArgMatches) {
 	match image_url_result {
 		Ok(image_url) => {
 			if verbose {
-				writeln!(buf_out, "Image URL: `{}`", image_url).unwrap();
+				writeln!(buf_out, "Image URL: `{image_url}`").unwrap();
 			}
 			match image_url.scheme() {
 				"file" => {
 					let image_path = image_url.to_file_path().unwrap();
-					let mut image = image::io::Reader::open(&image_path)
+					let mut image = image::io::Reader::open(image_path)
 						.unwrap()
 						.with_guessed_format()
 						.unwrap()
@@ -294,7 +294,7 @@ async fn print_image(matches: &clap::ArgMatches) {
 						.unwrap();
 					}
 					viuer::print(&image, &print_config).unwrap_or_else(|_| {
-						panic!("Failed to render from file at path `{}`.", image_input)
+						panic!("Failed to render from file at path `{image_input}`.")
 					});
 				}
 				"http" | "https" => {

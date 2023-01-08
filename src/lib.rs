@@ -67,7 +67,7 @@ pub async fn download_http_file(url: String) -> Vec<u8> {
 				file_vec.extend(bytes);
 			}
 			Some(Err(e)) => {
-				eprintln!("Error: {}", e);
+				eprintln!("Error: {e}");
 			}
 			None => break,
 		}
@@ -121,7 +121,7 @@ pub async fn download_ftp_file(
 	let host_port = host.to_string() + ":" + port.unwrap_or(21).to_string().as_str();
 	let mut ftp_stream = FtpStream::connect(&host_port)
 		.await
-		.unwrap_or_else(|_| panic!("Failed to connect to FTP server (`{}`).", host_port));
+		.unwrap_or_else(|_| panic!("Failed to connect to FTP server (`{host_port}`)."));
 	if !username.is_empty() || password.is_some() {
 		let pass_field = if password.is_none() {
 			""
@@ -133,16 +133,14 @@ pub async fn download_ftp_file(
 			.await
 			.unwrap_or_else(|_| {
 				panic!(
-					"Failed to login to FTP server at `{}` (username `{}`, password: `{}`).",
-					host_port, username, pass_field
+					"Failed to login to FTP server at `{host_port}` (username `{username}`, password: `{pass_field}`)."
 				)
 			});
 	};
 
 	let remote_file = ftp_stream.simple_retr(path).await.unwrap_or_else(|_| {
 		panic!(
-			"Failed to download file `{}` from FTP server at `{}`.",
-			path, host_port
+			"Failed to download file `{path}` from FTP server at `{host_port}`."
 		)
 	});
 	let bytes = remote_file.into_inner();
@@ -150,7 +148,7 @@ pub async fn download_ftp_file(
 	ftp_stream
 		.quit()
 		.await
-		.unwrap_or_else(|_| panic!("Failed to quit FTP connection to `{}`.", host_port));
+		.unwrap_or_else(|_| panic!("Failed to quit FTP connection to `{host_port}`."));
 
 	bytes
 }
