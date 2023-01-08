@@ -139,9 +139,7 @@ pub async fn download_ftp_file(
 	};
 
 	let remote_file = ftp_stream.simple_retr(path).await.unwrap_or_else(|_| {
-		panic!(
-			"Failed to download file `{path}` from FTP server at `{host_port}`."
-		)
+		panic!("Failed to download file `{path}` from FTP server at `{host_port}`.")
 	});
 	let bytes = remote_file.into_inner();
 
