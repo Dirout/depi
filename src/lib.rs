@@ -30,7 +30,7 @@ use tls_api::{TlsConnector, TlsConnectorBuilder};
 pub async fn handle_ipfs_request_using_api(url: String) -> Vec<u8> {
 	let decoded_url = urlencoding::decode(&url).unwrap();
 	let ipfs_path = decoded_url.replacen("ipfs://", "", 1);
-	return download_ipfs_file_from_api(ipfs_path).await;
+	download_ipfs_file_from_api(ipfs_path).await
 }
 
 /// Download an IPFS file to the local machine using an existing IPFS node
@@ -92,10 +92,10 @@ pub async fn download_tor_file(url: String) -> Vec<u8> {
 	let tor_connector = ArtiHttpConnector::new(tor_client, tls_connector);
 	let http = hyper::Client::builder().build::<_, Body>(tor_connector);
 	let mut resp = http.get(url.try_into().unwrap()).await.unwrap();
-	return hyper::body::to_bytes(resp.body_mut())
+	hyper::body::to_bytes(resp.body_mut())
 		.await
 		.unwrap()
-		.to_vec();
+		.to_vec()
 }
 
 /// Download a file to the local machine using FTP(S)
