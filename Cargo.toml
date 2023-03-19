@@ -47,13 +47,13 @@ doc = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.69"
+anyhow = "1.0.70"
 argfile = "0.1.5"
 arti-client = { version = "0.8.2", features = ["static"] }
 arti-hyper = "0.8.2"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
-clap = { version = "4.1.8", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
+clap = { version = "4.1.11", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.27"
 hyper = "0.14.25"
 image = { version = "0.24.5", default-features = true }
