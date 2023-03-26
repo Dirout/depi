@@ -53,16 +53,16 @@ arti-client = { version = "0.8.2", features = ["static"] }
 arti-hyper = "0.8.2"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
-clap = { version = "4.1.11", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
+clap = { version = "4.1.13", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.27"
 hyper = "0.14.25"
-image = { version = "0.24.5", default-features = true }
+image = { version = "0.24.6", default-features = true }
 ipfs-api-backend-hyper = { version = "0.6.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
 mimalloc = { version = "0.1.34", default-features = false }
 url = "2.3.1"
 urlencoding = "2.1.2"
-reqwest = { version = "0.11.14", features = ["stream"] }
+reqwest = { version = "0.11.15", features = ["stream"] }
 tls-api = { version = "0.9.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.9.0", features = ["runtime-tokio"] }
 tokio = { version = "1.26.0", features = ["full"] }
