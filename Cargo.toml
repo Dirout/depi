@@ -62,7 +62,7 @@ lazy_static = "1.4.0"
 mimalloc = { version = "0.1.34", default-features = false }
 url = "2.3.1"
 urlencoding = "2.1.2"
-reqwest = { version = "0.11.15", features = ["stream"] }
+reqwest = { version = "0.11.16", features = ["stream"] }
 tls-api = { version = "0.9.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.9.0", features = ["runtime-tokio"] }
 tokio = { version = "1.26.0", features = ["full"] }
