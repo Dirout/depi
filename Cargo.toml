@@ -55,7 +55,7 @@ async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
 clap = { version = "4.2.1", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.28"
-hyper = "0.14.25"
+hyper = "0.14.26"
 image = { version = "0.24.6", default-features = true }
 ipfs-api-backend-hyper = { version = "0.6.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
