@@ -47,26 +47,26 @@ doc = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.70"
+anyhow = "1.0.71"
 argfile = "0.1.5"
 arti-client = { version = "0.8.3", features = ["static"] }
 arti-hyper = "0.8.3"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
-clap = { version = "4.2.4", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
+clap = { version = "4.2.5", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.28"
 hyper = "0.14.26"
 image = { version = "0.24.6", default-features = true }
 ipfs-api-backend-hyper = { version = "0.6.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
-mimalloc = { version = "0.1.36", default-features = false }
+mimalloc = { version = "0.1.37", default-features = false }
 url = "2.3.1"
 urlencoding = "2.1.2"
-reqwest = { version = "0.11.16", features = ["stream"] }
+reqwest = { version = "0.11.17", features = ["stream"] }
 tls-api = { version = "0.9.0", features = ["runtime-tokio"] }
 tls-api-native-tls = { version = "0.9.0", features = ["runtime-tokio"] }
-tokio = { version = "1.27.0", features = ["full"] }
-tokio-stream = "0.1.12"
+tokio = { version = "1.28.0", features = ["full"] }
+tokio-stream = "0.1.14"
 viuer = "0.6.2"
 wild = "2.1.0"
 
