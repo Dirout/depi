@@ -48,7 +48,7 @@ doc = true
 
 [dependencies]
 anyhow = "1.0.75"
-argfile = "0.1.5"
+argfile = "0.1.6"
 arti-client = { version = "0.8.3", features = ["static"] }
 arti-hyper = "0.8.3"
 async_ftp = { version = "6.0.0", features = ["secure"] }
