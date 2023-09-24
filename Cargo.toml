@@ -68,7 +68,7 @@ tls-api-native-tls = { version = "0.9.0", features = ["runtime-tokio"] }
 tokio = { version = "1.32.0", features = ["full"] }
 tokio-stream = "0.1.14"
 viuer = "0.6.2"
-wild = "2.1.0"
+wild = "2.2.0"
 
 [profile.release]
 codegen-units = 1
