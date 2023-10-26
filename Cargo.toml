@@ -54,7 +54,7 @@ arti-hyper = "0.8.3"
 async_ftp = { version = "6.0.0", features = ["secure"] }
 cfg-if = "1.0.0"
 clap = { version = "4.4.6", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
-futures = "0.3.28"
+futures = "0.3.29"
 hyper = "0.14.27"
 image = { version = "0.24.7", default-features = true }
 ipfs-api-backend-hyper = { version = "0.6.0", features = ["with-hyper-tls"] }
