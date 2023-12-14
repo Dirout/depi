@@ -57,7 +57,7 @@ jobs:
           cargo generate-rpm
           tree -a ./
       - name: Upload depi package to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: x86_64-depi.rpm.gnu+linux
           path: "./depi/target/generate-rpm/*.rpm"

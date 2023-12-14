@@ -75,19 +75,19 @@ jobs:
           libdepi.dylib \
           libdepi.a
       - name: Upload depi AMD64 build artifacts to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: x86_64-depi.osx
           path: ./target/x86_64-apple-darwin/release/x86_64-depi.osx.tar
           if-no-files-found: error
       - name: Upload depi ARM64 build artifacts to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aarch64-depi.osx
           path: ./target/aarch64-apple-darwin/release/aarch64-depi.osx.tar
           if-no-files-found: error
       - name: Upload depi Universal build artifacts to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: universal-depi.osx
           path: ./target/universal-depi.osx.tar

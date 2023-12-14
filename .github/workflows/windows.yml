@@ -53,7 +53,7 @@ jobs:
           libdepi.a \
           libdepi.dll.a
       - name: Upload depi build artifacts to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: x86_64-depi.win32
           path: ./target/x86_64-pc-windows-gnu/release/x86_64-depi.win32.zip
