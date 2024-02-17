@@ -39,7 +39,7 @@ jobs:
           libdepi.so \
           libdepi.a
       - name: Upload depi build artifacts to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aarch64-depi.gnu+linux
           path: ./target/aarch64-unknown-linux-gnu/release/aarch64-depi.gnu+linux.tar
