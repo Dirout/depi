@@ -47,7 +47,7 @@ doc = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.79"
+anyhow = "1.0.80"
 argfile = "0.1.6"
 arti-client = { version = "0.8.3", features = ["static"] }
 arti-hyper = "0.8.3"
@@ -56,7 +56,7 @@ cfg-if = "1.0.0"
 clap = { version = "4.5.1", features = ["cargo", "suggestions", "color", "wrap_help", "unicode"] }
 futures = "0.3.30"
 hyper = "0.14.28"
-image = { version = "0.24.8", default-features = true }
+image = { version = "0.24.9", default-features = true }
 ipfs-api-backend-hyper = { version = "0.6.0", features = ["with-hyper-tls"] }
 lazy_static = "1.4.0"
 mimalloc = { version = "0.1.39", default-features = false }
