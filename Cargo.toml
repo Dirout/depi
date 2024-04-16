@@ -1,17 +1,3 @@
-#    This file is part of depi.
-#
-#    depi is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    depi is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with depi.  If not, see <https://www.gnu.org/licenses/>.
 [package]
 name = "depi"
 version = "0.2.0"
@@ -22,7 +8,7 @@ license = "AGPL-3.0-or-later"
 description = "Command-line tool for viewing images."
 repository = "https://github.com/Dirout/depi"
 homepage = "https://github.com/Dirout/depi"
-readme = "README"
+readme = "README.md"
 include = [
     "**/*.rs",
     "Cargo.toml",
@@ -70,21 +56,6 @@ tokio-stream = "0.1.15"
 viuer = "0.6.2"
 wild = "2.2.1"
 
-[profile.release]
-codegen-units = 1
-opt-level = 3
-debug = false
-debug-assertions = false
-overflow-checks = false
-lto = true
-incremental = false
-rpath = false
-strip = true
-
-[profile.release.build-override]
-opt-level = 3
-codegen-units = 1
-
 [features]
 sixel = ["viuer/sixel"]
 avif = ["image/avif-encoder", "image/avif-decoder"]
@@ -95,7 +66,7 @@ priority = "optional"
 assets = [
     ["target/x86_64-unknown-linux-gnu/release/depi", "usr/bin/", "755"],
     ["target/x86_64-unknown-linux-gnu/release/libdepi.so", "usr/lib/", "644"],
-    ["README", "usr/share/doc/depi/README", "644"],
+    ["README.md", "usr/share/doc/depi/README.md", "644"],
     ["COPYING", "usr/share/doc/depi/COPYING", "644"],
 ]
 
@@ -104,6 +75,6 @@ assets = [
   { source = "target/release/depi", dest = "/usr/bin/depi", mode = "755" },
   { source = "target/release/libdepi.so", dest = "/usr/lib/libdepi.so", mode = "755" },
   { source = "target/release/libdepi.a", dest = "/usr/lib/libdepi.a", mode = "755" },
-  { source = "README", dest = "/usr/share/doc/ticky/README", mode = "644" },
-  { source = "COPYING", dest = "/usr/share/doc/ticky/COPYING", mode = "644" },
+  { source = "README.md", dest = "/usr/share/doc/depi/README.md", mode = "644" },
+  { source = "COPYING", dest = "/usr/share/doc/depi/COPYING", mode = "644" },
 ]

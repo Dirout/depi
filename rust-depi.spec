@@ -30,7 +30,7 @@ Summary:        %{summary}
 %license NOTICE
 %doc CODE_OF_CONDUCT.md
 %doc CONTRIBUTING.md
-%doc README
+%doc README.md
 %doc SECURITY.md
 %{_bindir}/depi
 
@@ -49,7 +49,7 @@ use the "%{crate}" crate.
 %license %{crate_instdir}/NOTICE
 %doc %{crate_instdir}/CODE_OF_CONDUCT.md
 %doc %{crate_instdir}/CONTRIBUTING.md
-%doc %{crate_instdir}/README
+%doc %{crate_instdir}/README.md
 %doc %{crate_instdir}/SECURITY.md
 %{crate_instdir}/
 
