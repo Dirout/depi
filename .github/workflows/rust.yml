@@ -17,7 +17,7 @@ jobs:
           default: true
           profile: default
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Generate documentation
         run: time cargo doc --no-deps -Zrustdoc-map --all-features --release --quiet
       - name: Fix permissions
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout codebase
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Setup Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
